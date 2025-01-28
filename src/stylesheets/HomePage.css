@@ -1,0 +1,110 @@
+p,ul{
+  margin: 0;
+  padding: 0;
+}
+
+.page-title{
+    width: 50%;
+    text-align: center;
+    background-color: rebeccapurple;
+  }
+  
+  .input-n-list{
+    width: 50%;
+    padding: 1rem;
+    background-color: black;
+  }
+
+  .input-n-btn{
+    display: flex;
+    justify-content: space-between;
+    background: rgb(207, 207, 207);
+    width: 100%;
+  }
+
+  .input-field {
+    border: none;
+    outline: none;
+    background: transparent;
+    background: yellow;
+    flex: 1;
+  }
+  
+  .task-list{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background-color: cadetblue;
+    list-style: none;
+  }
+  
+/* -------------------------------Task component ---------------------------- */
+
+  .task-item{
+    display: flex;
+    padding: 10px 5px;
+    background-color: rgb(78, 148, 234);
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .task-item :hover{
+    cursor: pointer;
+    color: red;
+    background-color: rgb(108, 164, 220);
+
+  }
+  .task-item p.completed {
+    text-decoration: line-through;
+
+    color: gray;
+  }
+
+/* -------------------------------Edit and delete modals ---------------------------- */
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  /* Modal Content */
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Buttons */
+  .btn {
+    margin: 5px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
