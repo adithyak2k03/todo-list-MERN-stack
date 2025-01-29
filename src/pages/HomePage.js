@@ -3,8 +3,9 @@ import "../stylesheets/HomePage.css";
 import Task from "../components/Task";
 import EditTaskModal from "../components/EditTaskModal";
 import DeleteTaskModal from "../components/DeleteTaskModal";
+import { fetchTasks, addTask, toggleTask, editTask, deleteTask } from "../services/api"
 
-const API_URL = "http://localhost:5000/tasks";
+
 
 const HomePage = (props) => {
   const [tasks, setTasks] = useState([]);
@@ -14,101 +15,37 @@ const HomePage = (props) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
 
-  const addTask = async () =>{
+  const handleFetchTasks = async () => {
+    const data = await fetchTasks();
+    setTasks(data);
+  };
 
-    if(inputValue.trim()){
-      
-      const payload = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({text: inputValue}),
-      };
-      try{
-        const response = await fetch(API_URL,payload);
-        
-        if(response.ok){
-          const newTask = await response.json();
-          setTasks((prevTasks)=>[newTask, ...prevTasks]);
-          setInputValue("");
-          }else{
-            console.error("Failed to add task");
-          }
-        }catch(error){
-          console.error("Error adding task:", error);
-        }
+  const handleAddTask = async () => {
+    const newTask = await addTask(inputValue);
+    if (newTask) {
+      setTasks((prevTasks) => [newTask, ...prevTasks]);
+      setInputValue("");
     }
   };
 
-  const fetchTasks = async () => {
-    try{
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setTasks(data);
-    } catch(error){
-      console.error("Error fetching tasks: ", error);
+  const handleToggleTask = async (id) => {
+    const updatedTask = await toggleTask(id, !tasks.find((t) => t._id === id).completed);
+    if (updatedTask) {
+      setTasks((prevTasks) => prevTasks.map((t) => (t._id === id ? updatedTask : t)));
     }
   };
 
-  const toggleTask = async(id) =>{
-    try{
-      const task = tasks.find((t)=> t._id === id);
-      if (!task) {
-        console.error("Task not found");
-        return;
-      }
-      const payload = {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({completed: !task.completed}),
-      };
-      const response = await fetch(`${API_URL}/${id}`, payload);
-      if(response.ok){
-        const updatedTask = await response.json();
-        setTasks(
-          (prevTasks) => prevTasks.map((t) => (t._id === id ? updatedTask : t))
-        );
-      }
-    }catch(error){
-      console.error("Error toggling task:", error);
+  const handleEditTask = async (id, newText) => {
+    const updatedTask = await editTask(id, newText);
+    if (updatedTask) {
+      setTasks((prevTasks) => prevTasks.map((t) => (t._id === id ? updatedTask : t)));
     }
   };
 
-  const editTask = (id, newText) => {
-    try{
-      const payload = {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({text:newText}),
-      };
-
-      fetch(`${API_URL}/${id}`, payload)
-        .then((response) => response.json())
-        .then((updatedTask) =>{
-          setTasks((prevTasks) =>
-            prevTasks.map((t) => (t._id === id ? updatedTask : t)) 
-          );
-        });
-
-    }catch(error){
-      console.error("Error editing task", error);
-    }
-  };
-
-  const deleteTask = (id) => {
-    try {
-      fetch(`${API_URL}/${id}`, {method: "DELETE"})
-        .then((response) => response.json())
-        .then(() => {
-          setTasks((prevTasks) => prevTasks.filter((task) => task._id !==id));
-        });
-    } catch(error){
-      console.error("Error deleting task ", error)
+  const handleDeleteTask = async (id) => {
+    const success = await deleteTask(id);
+    if (success) {
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
     }
   };
 
@@ -131,7 +68,7 @@ const HomePage = (props) => {
   }
 
   useEffect(()=>{
-    fetchTasks();
+    handleFetchTasks();
   },[]);
 
     return(
@@ -151,7 +88,7 @@ const HomePage = (props) => {
               />
               <button
                 className="btn btn-success"
-                onClick={addTask}
+                onClick={handleAddTask}
                 type="submit"
               >Add</button>
             </div>
@@ -161,7 +98,7 @@ const HomePage = (props) => {
               <li key={task._id}>
                 <Task
                   task={task}
-                  toggleTask={toggleTask}
+                  toggleTask={handleToggleTask}
                   onEdit={() => openEditModal(task)}
                   onDelete={()=> openDeleteModal(task)}
                 />
@@ -175,13 +112,13 @@ const HomePage = (props) => {
             task={currentTask}
             isOpen={isEditModalOpen}
             onClose={closeModals}
-            onSave={editTask}
+            onSave={handleEditTask}
           />
           <DeleteTaskModal
             task = {currentTask}
             isOpen={isDeleteModalOpen}
             onClose={closeModals}
-            onDelete={deleteTask}
+            onDelete={handleDeleteTask}
           />
       </>
     );
